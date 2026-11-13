@@ -1,0 +1,18 @@
+# Environment variables (rahasia)
+.env
+
+# Python cache & virtual environment
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+
+# Database lokal (jika ada)
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+

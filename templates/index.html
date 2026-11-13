@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot FAQ Kampus - AI Assistant</title>
+    <!-- Font Google: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --user-bubble: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --bot-bubble: rgba(51, 65, 85, 0.8);
+            --accent-color: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .chat-card {
+            width: 100%;
+            max-width: 750px;
+            height: 85vh;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Header UI */
+        .chat-header {
+            padding: 20px 24px;
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar-bot {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .header-info h2 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #4ade80;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #4ade80;
+        }
+
+        /* Chat Body */
+        .chat-box {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+
+        .message-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-row.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-row.bot {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .source-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .source-tag.lokal {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .source-tag.gemini {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .bubble {
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 14.5px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .user .bubble {
+            background: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .bot .bubble {
+            background: var(--bot-bubble);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: var(--bot-bubble);
+            padding: 12px 18px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--card-border);
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            float: left;
+            margin: 0 2px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-of-type(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-of-type(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-of-type(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.4; transform: scale(1); }
+        }
+
+        /* Chat Input Footer */
+        .chat-footer {
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-top: 1px solid var(--card-border);
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 6px 8px 6px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 14.5px;
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-card">
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="avatar-bot">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="header-info">
+            <h2>Asisten Virtual Kampus</h2>
+            <div class="status-badge">
+                <span class="status-dot"></span> Sistem Hybrid Aktif
+            </div>
+        </div>
+    </div>
+
+    <!-- Area Percakapan -->
+    <div class="chat-box" id="chatBox">
+        <div class="message-row bot">
+            <span class="source-tag lokal"><i class="fa-solid fa-database"></i> Knowledge Base</span>
+            <div class="bubble">
+                Halo! Saya Asisten Virtual Kampus. Ada yang bisa saya bantu terkait jadwal, lokasi, atau informasi akademik lainnya?
+            </div>
+        </div>
+    </div>
+
+    <!-- Indikator Loading / Ketik -->
+    <div class="typing-indicator" id="typingIndicator">
+        <span></span><span></span><span></span>
+    </div>
+
+    <!-- Input Teks & Tombol Kirim -->
+    <div class="chat-footer">
+        <div class="input-wrapper">
+            <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda di sini..." onkeypress="handleKey(event)" autocomplete="off">
+            <button class="send-btn" onclick="kirimPesan()">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function kirimPesan() {
+        const inputField = document.getElementById("userInput");
+        const chatBox = document.getElementById("chatBox");
+        const typingIndicator = document.getElementById("typingIndicator");
+        const pesan = inputField.value.trim();
+        
+        if (!pesan) return;
+
+        // 1. Tampilkan Pesan Pengguna
+        chatBox.innerHTML += `
+            <div class="message-row user">
+                <div class="bubble">${escapeHtml(pesan)}</div>
+            </div>`;
+        inputField.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 2. Tampilkan Indikator Mengetik
+        typingIndicator.style.display = "block";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pesan: pesan })
+            });
+            const data = await res.json();
+
+            // Sembunyikan Indikator Loading
+            typingIndicator.style.display = "none";
+
+            // Tentukan Kelas Badge berdasarkan Sumber Jawaban
+            const isLokal = data.sumber.includes("Lokal");
+            const tagClass = isLokal ? "lokal" : "gemini";
+            const iconTag = isLokal ? '<i class="fa-solid fa-database"></i>' : '<i class="fa-solid fa-wand-magic-sparkles"></i>';
+
+            // 3. Tampilkan Pesan Balasan Bot
+            chatBox.innerHTML += `
+                <div class="message-row bot">
+                    <span class="source-tag ${tagClass}">${iconTag} ${data.sumber}</span>
+                    <div class="bubble">${data.respons}</div>
+                </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } catch (error) {
+            typingIndicator.style.display = "none";
+            chatBox.innerHTML += `
+                <div class="message-row bot">
+                    <span class="source-tag gemini"><i class="fa-solid fa-triangle-exclamation"></i> Error</span>
+                    <div class="bubble" style="color: #f87171;">Maaf, terjadi kesalahan koneksi ke server API Flask.</div>
+                </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    function handleKey(event) {
+        if (event.key === "Enter") {
+            kirimPesan();
+        }
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+</script>
+
+</body>
+</html>
