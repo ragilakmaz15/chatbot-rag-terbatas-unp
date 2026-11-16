@@ -6,7 +6,9 @@ INTENTS = {
     "greeting": {
         "examples": [
             "halo",
+            "hello",
             "hai",
+            "hi",
             "hallo",
             "selamat pagi",
             "selamat siang",
